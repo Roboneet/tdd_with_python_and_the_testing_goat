@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 import unittest
 
 # chrome_path = r"/Users/joyp.isahac/Downloads/chromedriver"
@@ -23,8 +24,23 @@ class  MyTests(unittest.TestCase):
 
 		self.browser.get('http://localhost:8000')
 		self.assertIn('To-Do', self.browser.title)
-		self.fail("Finish Test")
+		
+		header_txt = self.browser.find_element_by_tag_name('h1').text()
+		self.assertIn('To-Do', header_txt)
 
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		self.assertEqual(inputbox.get_attribute(placeholder),'Enter a to-do item')
+		inputbox.send_keys('Buy peacock feathers')
+
+		self.browser.send_keys(Keys.RETURN)
+
+		table = self.browser.find_element_by_tag_name('table')
+		rows = table.find_elements_by_tag_name('tr')
+		slef.assertTrue(
+			any(row.text == '1: Buy Peacock feathers' for row in rows)
+			)
+
+		self.fail("Finish Test")
 		self.browser.quit()
 
 
