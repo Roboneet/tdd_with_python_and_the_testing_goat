@@ -1,8 +1,9 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 import unittest
+import time
 
-# chrome_path = r"/Users/joyp.isahac/Downloads/chromedriver"
+chrome_path = r"/Users/joyp.isahac/Downloads/chromedriver"
 
 # browser = webdriver.Chrome(chrome_path)
 
@@ -25,20 +26,27 @@ class  MyTests(unittest.TestCase):
 		self.browser.get('http://localhost:8000')
 		self.assertIn('To-Do', self.browser.title)
 		
-		header_txt = self.browser.find_element_by_tag_name('h1').text()
+		header_txt = self.browser.find_element_by_tag_name('h1').text
 		self.assertIn('To-Do', header_txt)
 
 		inputbox = self.browser.find_element_by_id('id_new_item')
-		self.assertEqual(inputbox.get_attribute(placeholder),'Enter a to-do item')
+		self.assertEqual(inputbox.get_attribute('placeholder'),'Enter a to-do item')
 		inputbox.send_keys('Buy peacock feathers')
 
-		self.browser.send_keys(Keys.RETURN)
+		inputbox.send_keys(Keys.ENTER)
+		# time.sleep(10)
+		table = self.browser.find_element_by_tag_name('table')
+		rows = table.find_elements_by_tag_name('tr')
+		self.assertIn('1. Buy peacock feathers', [row.text for row in rows] )
+
+		inputbox = self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('Use peacock feathers to make a fly')
+		inputbox.send_keys(Keys.ENTER)
 
 		table = self.browser.find_element_by_tag_name('table')
 		rows = table.find_elements_by_tag_name('tr')
-		slef.assertTrue(
-			any(row.text == '1: Buy Peacock feathers' for row in rows)
-			)
+		self.assertIn('1. Buy peacock feathers', [row.text for row in rows] )
+		self.assertIn('2. Use peacock feathers to make a fly', [row.text for row in rows])
 
 		self.fail("Finish Test")
 		self.browser.quit()
