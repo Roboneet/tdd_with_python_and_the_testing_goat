@@ -4,7 +4,7 @@ from django.http import HttpRequest
 from django.template.loader import render_to_string
 
 from lists.views import home_page
-from lists.models import Item
+from lists.models import Item, List
 
 # Create your tests here.
 class HomePageTest(TestCase):
@@ -18,15 +18,23 @@ class HomePageTest(TestCase):
 		expected_html = render_to_string('home.html')
 		self.assertEqual(response.content.decode(),expected_html)
 
-class ItemModelTest(TestCase):
+class ListAndItemModelsTest(TestCase):
 	def test_saving_and_retriving_items(self):
+		list_ = List()
+		list_.save()
+
 		first = Item()
 		first.text = 'The first item'
+		first.list = list_
 		first.save()
 
 		second = Item()
 		second.text = 'Item 2'
+		second.list = list_
 		second.save()
+
+		saved_list = List.objects.first()
+		self.assertEqual(saved_list,list_)
 
 		all_items = Item.objects.all()
 		self.assertEqual(all_items.count(),2)
@@ -34,7 +42,10 @@ class ItemModelTest(TestCase):
 		first_item = all_items[0]
 		second_item = all_items[1]
 		self.assertEqual(first_item.text, 'The first item')
+		self.assertEqual(first_item.list, list_)
+		
 		self.assertEqual(second_item.text, 'Item 2')
+		self.assertEqual(second_item.list, list_)
 
 class ListTestView(TestCase):
 
@@ -44,8 +55,9 @@ class ListTestView(TestCase):
 
 
 	def test_home_page_displays_all_items(self):
-		Item.objects.create(text='Why this kolavari di?')
-		Item.objects.create(text='I am tItAniUm')
+		list_ = List.objects.create()
+		Item.objects.create(text='Why this kolavari di?',list=list_)
+		Item.objects.create(text='I am tItAniUm',list=list_)
 
 		response = self.client.get('/lists/the-only-list-in-the-world/')
 
